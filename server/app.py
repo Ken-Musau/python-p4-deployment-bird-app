@@ -1,13 +1,12 @@
+from models import db, Bird
+from flask_restful import Api, Resource
+from flask_migrate import Migrate
+from flask import Flask, jsonify, request, make_response, render_template
 import os
 
 from dotenv import load_dotenv
 load_dotenv()
 
-from flask import Flask, jsonify, request, make_response, render_template
-from flask_migrate import Migrate
-from flask_restful import Api, Resource
-
-from models import db, Bird
 
 app = Flask(
     __name__,
@@ -23,11 +22,20 @@ app.json.compact = False
 migrate = Migrate(app, db)
 db.init_app(app)
 
+
 @app.errorhandler(404)
 def not_found(e):
     return render_template("index.html")
 
+
 api = Api(app)
+
+
+@app.route('/')
+@app.route('/<int:id>')
+def index(id=0):
+    return render_template("index.html")
+
 
 class Birds(Resource):
 
@@ -50,10 +58,12 @@ class Birds(Resource):
 
         return make_response(new_bird.to_dict(), 201)
 
+
 api.add_resource(Birds, '/birds')
 
+
 class BirdByID(Resource):
-    
+
     def get(self, id):
         bird = Bird.query.filter_by(id=id).first().to_dict()
         return make_response(jsonify(bird), 200)
@@ -79,5 +89,6 @@ class BirdByID(Resource):
         db.session.commit()
 
         return make_response('', 204)
+
 
 api.add_resource(BirdByID, '/birds/<int:id>')
