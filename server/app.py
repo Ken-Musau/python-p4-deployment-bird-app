@@ -37,6 +37,10 @@ def index(id=0):
     return render_template("index.html")
 
 
+class Home(Resource):
+    pass
+
+
 class Birds(Resource):
 
     def get(self):
